@@ -1,6 +1,6 @@
-from cmath import inf
 import tkinter as tk
 from tkinter import filedialog as fd
+from turtle import bgcolor
 from controler import Learnig, FlashCard
 
 
@@ -13,59 +13,66 @@ class MainView(tk.Frame):
         self.config_wigets()
         self.card = None
 
+    def button(self, text, bg, fg, cmd=None):
+        def on_enter(e):
+            nice_button['background'] = bg
+            nice_button['foreground'] = fg
+
+        def on_leave(e):
+            nice_button['background'] = fg
+            nice_button['foreground'] = bg
+
+        nice_button = tk.Button(self.master, text=text, fg=bg, bg=fg,
+                                border=0, command=cmd)
+        nice_button.bind('<Enter>', on_enter)
+        nice_button.bind('<Leave>', on_leave)
+        nice_button.pack(expand=True, fill='x', padx=5, pady=5, ipadx=6,
+                         ipady=6)
+        nice_button.config(font=self.font)
+
     def layout(self):
         self.master.geometry('350x550+0+0')
-        # self.master.pack()
-        # self.master.grid_columnconfigure((0, 1, ), weight=1)
 
-        self.get_word = tk.Button(self.master, text='Losuj fiszkę',
-                                  command=self.get_flash_card)
-        self.get_word.pack(padx=10, pady=10, ipadx=2, ipady=2,)
+        self.button('Losowanie Fiszki', '#ffcc66', '#222', self.get_flash_card)
 
         self.option_label = tk.Label(self.master, text='Przetłumacz słowo:')
-        self.option_label.pack(pady=(22, 22))
+        self.option_label.pack(fill='x', pady=(22, 22))
 
-        self.word_p_label = tk.Label(self.master, text='Wylosowane słowo')
-        self.word_p_label.pack(pady=(12, 22))
+        self.word_p_label = tk.Label(self.master, text='Wylosuj Fiszkę')
+        self.word_p_label.pack(fill='x', pady=(12, 22))
 
         self.answer = tk.Entry(self.master)
-        self.answer.pack(pady=(12, 22), ipadx=2, ipady=5,)
+        self.answer.pack(fill='x', pady=(12, 22), ipadx=2, ipady=5,)
         self.answer.bind('<Return>', lambda e: self.check_answer(e))
 
-        self.check_button = tk.Button(self.master, text='Sprawdź',
-                                    command=self.check_answer)
-        self.check_button.pack(padx=10, pady=10, ipadx=2, ipady=2,)
-        
-        self.messages = tk.Message(self.master, text=' ')
-        self.messages.pack(pady=(12, 22))
+        self.button('Sprawdź', '#ffcc66', '#222', self.check_answer)
 
-        self.option = tk.Button(self.master, text='Opcje',
-                                command=lambda: self.open_options(OptionWindow))
-        self.option.pack(padx=10, pady=10, ipadx=2, ipady=2,)
+        self.messages = tk.Message(self.master, text=' ')
+        self.messages.pack(pady=(2, 2), fill='both')
+
+        self.button('Opcje', '#ffcc66', '#222',
+                    lambda: self.open_options(OptionWindow))
 
     def config_wigets(self):
         self.master.configure(bg='#111', relief='flat', padx=10, pady=10)
-        self.get_word.config(**self.options, width=30,)
-        self.option_label.config(**self.options_labels, width=30,)
+
+        self.option_label.config(**self.options_labels)
         self.word_p_label.config(bg='#111', fg=self.fg, relief='flat',
-                                 font=self.font, width=30,)
-        self.answer.config(**self.options, width=30,)
-        self.check_button.config(**self.options, width=30,)
-        self.messages.config(bg='#111', fg=self.fg, relief='flat',
-                             font=self.font, width=300, justify='center')
-        self.option.config(**self.options, width=30,)
+                                 font=self.font,)
+        self.answer.config(bg='#444', fg=self.fg, relief='flat',
+                           font=self.font,)
+        self.messages.config(**self.options, justify='center')
 
     def layout_config(self):
         self.master.title('Fiszki')
-
-        self.font = ('helvetica', 12)
-        self.font_labels = ('helvetica', 11)
-        self.fg = '#f1f1f1'
-        self.bg = '#444'
-        self.options = dict(bg=self.bg, fg=self.fg,
-                            relief='flat', font=self.font)
-        self.options_labels = dict(bg='#111', fg=self.fg,
-                                   relief='flat', font=self.font_labels)
+        self.font = ('raleway', 12)
+        self.font_labels = ('raleway', 11)
+        self.fg = '#ffcc66'
+        self.bg = '#141414'
+        self.options = dict(bg=self.bg, fg=self.fg, relief='flat',
+                            font=self.font)
+        self.options_labels = dict(bg='#111', fg=self.fg, relief='flat',
+                                   font=self.font_labels)
 
     def get_flash_card(self):
         self.card = Learnig()
@@ -105,7 +112,8 @@ class OptionWindow(tk.Toplevel):
     def layout(self):
         self.master.geometry('350x550+0+0')
 
-        self.info = "Dodaj słowo w języku polskim. Automatycznie przetłumaczymy te słowo i dodamy do bazy"
+        self.info = '''Dodaj słowo w języku polskim. Automatycznie
+        przetłumaczymy te słowo i dodamy do bazy'''
 
         self.info_label = tk.Message(self.master, text=self.info)
         self.info_label.pack(pady=(22, 22))
@@ -121,7 +129,9 @@ class OptionWindow(tk.Toplevel):
         self.messages = tk.Message(self.master, text=' ')
         self.messages.pack(pady=(12, 22))
 
-        self.info_2 = '''Możesz także dodać wiele słów naraz wczytaj poniżej plik z rozszerzeniem txt, gdzie każdy wyraz będzie zapisany w osobnej linii'''
+        self.info_2 = '''Możesz także dodać wiele słów naraz wczytaj poniżej
+        plik z rozszerzeniem txt, gdzie każdy wyraz będzie
+        zapisany w osobnej linii'''
 
         self.info_2_label = tk.Message(self.master, text=self.info_2)
         self.info_2_label.pack(pady=(22, 22))
@@ -129,14 +139,14 @@ class OptionWindow(tk.Toplevel):
         self.add_multi_button = tk.Button(self.master, text='Dodaj wiele',
                                           command=self.batch_save)
         self.add_multi_button.pack(padx=10, pady=10, ipadx=2, ipady=2,)
-        
+
         self.status_label = tk.Label(self.master, text='')
         self.status_label.pack(pady=(22, 22))
 
     def config_wigets(self):
         self.master.configure(bg='#333', relief='flat', padx=10, pady=10)
         self.info_label.config(**self.options_labels, width=300,
-                                 justify='center')
+                               justify='center')
         self.word_to_add.config(**self.options, width=30,)
         self.add_button.config(**self.options, width=30,)
         self.messages.config(bg='#333', fg=self.fg, relief='flat',
@@ -161,7 +171,7 @@ class OptionWindow(tk.Toplevel):
         word = self.word_to_add.get()
         message = FlashCard().translate_word(word)
         self.messages.configure(text=message)
-    
+
     def batch_save(self):
         self.file = fd.askopenfilename()
         info = FlashCard().batch_translate_word(self.file)

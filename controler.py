@@ -128,6 +128,4 @@ class Learnig:
 
 
 if __name__ == '__main__':
-    translator = Translator()
-    translation = translator.translate("Czeremcha", src='pl')
-    print(f"{translation.origin} ({translation.src}) --> {translation.text} ({translation.dest})")
+    pass
