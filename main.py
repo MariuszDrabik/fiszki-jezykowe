@@ -164,7 +164,7 @@ class OptionWindow(tk.Toplevel):
     def save_word(self, event=None):
         try:
             word = self.word_to_add.get()
-            message = FlashCard().translate_word(word)
+            message = FlashCard.translate_word(word)
             self.messages.configure(text=message)
         except TypeError as e:
             print(e)
@@ -172,7 +172,8 @@ class OptionWindow(tk.Toplevel):
 
     def batch_save(self):
         self.file = fd.askopenfilename()
-        info = FlashCard().batch_translate_word(self.file)
+        print(self.file)
+        info = FlashCard.batch_translate_word(self.file)
         self.status_label.config(text=info)
 
 

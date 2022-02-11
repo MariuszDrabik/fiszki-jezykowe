@@ -27,7 +27,8 @@ class Word(Base):
 
 class Conection:
 
-    def session_maker(self):
+    @staticmethod
+    def session_maker():
         engine = create_engine(f'sqlite:///database/word.db')
         Base.metadata.create_all(engine)
         session = sessionmaker(bind=engine)
@@ -36,51 +37,57 @@ class Conection:
 
 class FlashCard:
 
-    def save_new_card(self, en_word, pl_word):
-        with Conection().session_maker() as s:
+    @staticmethod
+    def save_new_card(en_word, pl_word):
+        with Conection.session_maker() as s:
             statement = insert(Word).values(en_word=en_word, pl_word=pl_word)
             s.execute(statement)
             s.commit()
         return f'Zapisano parę:\n{pl_word} - {en_word}'
 
-    def get_unknown_words(self):
-        with Conection().session_maker() as s:
+    @staticmethod
+    def get_unknown_words():
+        with Conection.session_maker() as s:
             statement = select(Word).filter_by(known=False)
             result = s.execute(statement).all()
             return result
 
-    def check_if_exists(self, word):
-        with Conection().session_maker() as s:
+    @staticmethod
+    def check_if_exists(word):
+        with Conection.session_maker() as s:
             statement = select(Word).filter_by(pl_word=word)
             result = s.execute(statement).all()
             if result:
                 return 1
             return 0
 
-    def update_word(self, word, known=False):
+    @staticmethod
+    def update_word(word, known=False):
         word_id = word.id
         trials = word.trials
-        with Conection().session_maker() as s:
+        with Conection.session_maker() as s:
             statement = update(Word).where(Word.id == word_id).\
                 values(trials=trials, known=known)
             s.execute(statement)
             s.commit()
 
-    def translate_word(self, word):
-        if not self.check_if_exists(word):
+    @staticmethod
+    def translate_word(word):
+        if not FlashCard.check_if_exists(word):
             translator = Translator()
             translation = translator.translate(word, src="pl", dest="en")
-            save = self.save_new_card(translation.text.lower(), word.lower())
+            save = FlashCard.save_new_card(translation.text.lower(), word.lower())
             return save
         return 'Te słowo istnieje już w bazie'
 
-    def batch_translate_word(self, file):
+    @staticmethod
+    def batch_translate_word(file):
         try:
             with open(file, 'r', encoding='utf-8') as file:
                 for word in file:
                     word = word.strip()
-                    self.translate_word(word)
-        except Error as e:
+                    FlashCard.translate_word(word)
+        except ValueError as e:
             print('Coś poszło nie tak', e)
             return 'Nie zapisano'
         return 'Zapisano'
@@ -90,8 +97,9 @@ class Learnig:
     def __init__(self):
         self.random_word()
 
+    # zrób z tego class method
     def random_word(self) -> Word:
-        words = FlashCard().get_unknown_words()
+        words = FlashCard.get_unknown_words()
         amount = len(words)-1
         try:
             if amount <= 1:
@@ -117,9 +125,9 @@ class Learnig:
             self.word.trials += 1
             if self.word.trials == 10:
                 self.word.known = True
-                FlashCard().update_word(self.word, known=self.word.known)
+                FlashCard.update_word(self.word, known=self.word.known)
                 return 'Super słowo zapamiętane'
-            FlashCard().update_word(self.word)
+            FlashCard.update_word(self.word)
             return 'Brawo udało się zgadnąć słowo'
         else:
             return (f'Nie udało się słowo\n{self.word.pl_word}\n'
