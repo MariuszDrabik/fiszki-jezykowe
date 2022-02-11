@@ -6,6 +6,9 @@ from sqlalchemy.orm import sessionmaker
 from random import randint
 
 Base = declarative_base()
+engine = create_engine(f'sqlite:///database/word.db')
+Base.metadata.create_all(engine)
+session = sessionmaker(bind=engine)
 
 
 class Word(Base):
@@ -21,25 +24,15 @@ class Word(Base):
         return (f"<User(en='{self.en_word}', pl='{self.pl_word}',"
                 f"próby='{self.trials}', {self.known})>")
 
-    def get_tuple(self):
-        return (self.id, self.en_word, self.pl_word, self.trials)
-
-
-class Conection:
-
-    @staticmethod
-    def session_maker():
-        engine = create_engine(f'sqlite:///database/word.db')
-        Base.metadata.create_all(engine)
-        session = sessionmaker(bind=engine)
-        return session()
+    def __str__(self):
+        return f"{self.id} {self.en_word} {self.pl_word} {self.trials}"
 
 
 class FlashCard:
 
     @staticmethod
     def save_new_card(en_word, pl_word):
-        with Conection.session_maker() as s:
+        with session() as s:
             statement = insert(Word).values(en_word=en_word, pl_word=pl_word)
             s.execute(statement)
             s.commit()
@@ -47,14 +40,14 @@ class FlashCard:
 
     @staticmethod
     def get_unknown_words():
-        with Conection.session_maker() as s:
+        with session() as s:
             statement = select(Word).filter_by(known=False)
             result = s.execute(statement).all()
             return result
 
     @staticmethod
     def check_if_exists(word):
-        with Conection.session_maker() as s:
+        with session() as s:
             statement = select(Word).filter_by(pl_word=word)
             result = s.execute(statement).all()
             if result:
@@ -65,7 +58,7 @@ class FlashCard:
     def update_word(word, known=False):
         word_id = word.id
         trials = word.trials
-        with Conection.session_maker() as s:
+        with session() as s:
             statement = update(Word).where(Word.id == word_id).\
                 values(trials=trials, known=known)
             s.execute(statement)
@@ -76,7 +69,8 @@ class FlashCard:
         if not FlashCard.check_if_exists(word):
             translator = Translator()
             translation = translator.translate(word, src="pl", dest="en")
-            save = FlashCard.save_new_card(translation.text.lower(), word.lower())
+            save = FlashCard.save_new_card(translation.text.lower(),
+                                           word.lower())
             return save
         return 'Te słowo istnieje już w bazie'
 
