@@ -1,5 +1,3 @@
-from http.client import NETWORK_AUTHENTICATION_REQUIRED
-from msilib.schema import Error
 from googletrans import Translator
 from sqlalchemy import create_engine, select, true, update, insert
 from sqlalchemy import Column, Integer, String, Boolean
@@ -90,7 +88,7 @@ class FlashCard:
 
 class Learnig:
     def __init__(self):
-        self.word = self.random_word()
+        self.random_word()
 
     def random_word(self) -> Word:
         words = FlashCard().get_unknown_words()
@@ -103,7 +101,8 @@ class Learnig:
                 return self.word
         except IndexError as e:
             print('Brak słów w bazie', e)
-            return -1
+            self.word = None
+            return self.word
         number = randint(0, amount)
         word = words[number]
         self.word = word[0]
@@ -125,7 +124,3 @@ class Learnig:
         else:
             return (f'Nie udało się słowo\n{self.word.pl_word}\n'
                     f'w języku angielskim to:\n{self.word.en_word}')
-
-
-if __name__ == '__main__':
-    pass
