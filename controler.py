@@ -21,8 +21,8 @@ class Word(Base):
     known = Column(Boolean, default=False)
 
     def __repr__(self):
-        return (f"<User(en='{self.en_word}', pl='{self.pl_word}',"
-                f"próby='{self.trials}', {self.known})>")
+        return (f"User(en_word='{self.en_word}', pl_word='{self.pl_word}',"
+                f"trials='{self.trials}', known={self.known})")
 
     def __str__(self):
         return f"{self.id} {self.en_word} {self.pl_word} {self.trials}"
