@@ -91,7 +91,7 @@ class Learnig:
     def __init__(self):
         self.random_word()
 
-    # zrób z tego class method
+    # zrób z tego classmethod
     def random_word(self) -> Word:
         words = FlashCard.get_unknown_words()
         amount = len(words)-1
