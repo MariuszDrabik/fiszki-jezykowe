@@ -103,7 +103,7 @@ class Learnig:
         self.word = word
 
     @classmethod
-    def from_repo(cls) -> Word:
+    def from_repo(cls):
         word = CardRepo.random_word()
         return cls(word)
 
