@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog as fd
 from turtle import bgcolor
-from controler import Learnig, FlashCard
+from controler import Learnig, CardRepo
 
 
 class Btn:
@@ -73,7 +73,10 @@ class MainView(tk.Frame):
                                    font=self.font_labels)
 
     def get_flash_card(self):
-        self.card = Learnig()
+        self.card = Learnig.from_repo()
+        if not self.card:
+            self.word_p_label.config(text='Brak słów w bazie')
+            return 0
         word = self.card.show_word()
         self.messages.configure(text=' ')
         self.word_p_label.config(text=word)
@@ -164,7 +167,7 @@ class OptionWindow(tk.Toplevel):
     def save_word(self, event=None):
         try:
             word = self.word_to_add.get()
-            message = FlashCard.translate_word(word)
+            message = CardRepo.translate_word(word)
             self.messages.configure(text=message)
         except TypeError as e:
             print(e)
@@ -173,7 +176,7 @@ class OptionWindow(tk.Toplevel):
     def batch_save(self):
         self.file = fd.askopenfilename()
         print(self.file)
-        info = FlashCard.batch_translate_word(self.file)
+        info = CardRepo.batch_translate_word(self.file)
         self.status_label.config(text=info)
 
 
